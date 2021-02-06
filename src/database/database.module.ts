@@ -19,9 +19,11 @@ import { TypeOrmModule } from '@nestjs/typeorm';
         */
         entities: [__dirname + '/../**/*.entity.{ts,js}'],
         synchronize: true,
-        ssl: {
-          rejectUnauthorized: false,
-        },
+        ssl: configService.get('NODE_ENV')?.startsWith('dev')
+          ? false
+          : {
+              rejectUnauthorized: false,
+            },
       }),
     }),
   ],

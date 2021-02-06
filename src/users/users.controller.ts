@@ -1,40 +1,30 @@
 import {
   Controller,
   Get,
-  Post,
   Body,
   Put,
   Param,
   Delete,
   UseGuards,
+  ClassSerializerInterceptor,
+  UseInterceptors,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
-import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { ApiCookieAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
 import User from './entities/user.entity';
-import { PublicUserDto } from './dto/public-user.dto';
 import JwtAuthenticationGuard from 'src/auth/jwt-authentication.guard';
 
 @Controller('users')
 @ApiTags('users')
+@UseInterceptors(ClassSerializerInterceptor)
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
-
-  @Post()
-  @ApiResponse({
-    status: 201,
-    description: 'The record has been successfully created.',
-    type: User,
-  })
-  create(@Body() createUserDto: CreateUserDto) {
-    return this.usersService.create(createUserDto);
-  }
 
   @Get()
   @ApiResponse({
     status: 200,
-    type: [PublicUserDto],
+    type: [User],
   })
   findAll() {
     return this.usersService.findAll();
@@ -43,7 +33,7 @@ export class UsersController {
   @Get(':id')
   @ApiResponse({
     status: 200,
-    type: PublicUserDto,
+    type: User,
   })
   findOne(@Param('id') id: string) {
     return this.usersService.findOne(Number(id));
@@ -52,7 +42,7 @@ export class UsersController {
   @Get(':email')
   @ApiResponse({
     status: 200,
-    type: PublicUserDto,
+    type: User,
   })
   findByEmail(@Param('email') email: string) {
     return this.usersService.findByEmail(email);

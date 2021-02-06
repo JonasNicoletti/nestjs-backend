@@ -25,7 +25,7 @@ export class FeaturesService {
   }
 
   findAll(): Promise<Feature[]> {
-    return this.featureRepository.find({ relations: ['users'] });
+    return this.featureRepository.find();
   }
 
   async findOne(id: number): Promise<Feature> {
