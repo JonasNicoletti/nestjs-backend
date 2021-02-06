@@ -10,7 +10,7 @@ import {
 import { EntriesService } from './entries.service';
 import { ApiCookieAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
 import RequestWithUser from '../auth/interfaces/requestWithUser.interface';
-import JwtAuthenticationGuard from '../auth/jwt-authentication.guard';
+import JwtAuthenticationGuard from '../auth/guards/jwt-authentication.guard';
 import Entry from './entities/entry.entity';
 
 @Controller('entries')

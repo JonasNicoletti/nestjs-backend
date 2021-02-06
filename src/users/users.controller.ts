@@ -13,7 +13,7 @@ import { UsersService } from './users.service';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { ApiCookieAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
 import User from './entities/user.entity';
-import JwtAuthenticationGuard from 'src/auth/jwt-authentication.guard';
+import JwtAuthenticationGuard from 'src/auth/guards/jwt-authentication.guard';
 
 @Controller('users')
 @ApiTags('users')

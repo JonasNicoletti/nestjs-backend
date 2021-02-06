@@ -36,6 +36,12 @@ class User {
   @Column()
   public password: string;
 
+  @Column({
+    nullable: true,
+  })
+  @Exclude()
+  public currentHashedRefreshToken?: string;
+
   @ManyToMany(() => Feature, (feature: Feature) => feature.users)
   public features: Feature[];
 

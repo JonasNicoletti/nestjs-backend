@@ -14,7 +14,7 @@ import { CreateFeatureDto } from './dto/create-feature.dto';
 import { UpdateFeatureDto } from './dto/update-feature.dto';
 import Feature from './entities/feature.entity';
 import { ApiCookieAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
-import JwtAuthenticationGuard from '../auth/jwt-authentication.guard';
+import JwtAuthenticationGuard from '../auth/guards/jwt-authentication.guard';
 import RequestWithUser from '../auth/interfaces/requestWithUser.interface';
 
 @Controller('features')
