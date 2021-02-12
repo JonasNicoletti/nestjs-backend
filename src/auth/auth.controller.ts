@@ -11,7 +11,6 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { ApiBody, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { CreateUserDto } from '../users/dto/create-user.dto';
 import User from '../users/entities/user.entity';
 import { AuthService } from './auth.service';
 import RequestWithUser from './interfaces/requestWithUser.interface';
@@ -35,8 +34,17 @@ export class AuthController {
     status: 200,
     type: User,
   })
-  async register(@Body() registrationData: CreateUserDto): Promise<User> {
-    return this.authService.register(registrationData);
+  async register(@Req() request: RequestWithUser): Promise<User> {
+    const user = await this.authService.register(request.user);
+    const accessTokenCookie = this.authService.getCookieWithJwtAccessToken(
+      user.id,
+    );
+    const { cookie, token } = this.authService.getCookieWithJwtRefreshToken(
+      user.id,
+    );
+    await this.usersService.setCurrentRefreshToken(token, +user.id);
+    request.res.setHeader('Set-Cookie', [accessTokenCookie, cookie]);
+    return user;
   }
 
   @HttpCode(200)
