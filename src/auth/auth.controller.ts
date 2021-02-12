@@ -1,5 +1,4 @@
 import {
-  Body,
   ClassSerializerInterceptor,
   Controller,
   Get,
@@ -19,6 +18,8 @@ import JwtAuthenticationGuard from './guards/jwt-authentication.guard';
 import { UsersService } from 'src/users/users.service';
 import { LocalAuthenticationGuard } from './guards/local-authentication.guard';
 import JwtRefreshGuard from './guards/jwt-refresh.guard';
+import RequestWithRegister from './interfaces/requestWithRegister.interface';
+import { CreateUserDto } from 'src/users/dto/create-user.dto';
 
 @Controller('auth')
 @ApiTags('auth')
@@ -27,15 +28,18 @@ export class AuthController {
   constructor(
     private readonly authService: AuthService,
     private readonly usersService: UsersService,
-  ) {}
+  ) { }
 
   @Post('register')
   @ApiResponse({
     status: 200,
     type: User,
   })
-  async register(@Req() request: RequestWithUser): Promise<User> {
-    const user = await this.authService.register(request.user);
+  @ApiBody({
+    type: CreateUserDto,
+  })
+  async register(@Req() request: RequestWithRegister): Promise<User> {
+    const user = await this.authService.register(request.body as CreateUserDto);
     const accessTokenCookie = this.authService.getCookieWithJwtAccessToken(
       user.id,
     );
@@ -57,7 +61,7 @@ export class AuthController {
     type: User,
   })
   async logIn(@Req() request: RequestWithUser) {
-    const user = request.user;
+    const user = request.body;
     const accessTokenCookie = this.authService.getCookieWithJwtAccessToken(
       user.id,
     );
