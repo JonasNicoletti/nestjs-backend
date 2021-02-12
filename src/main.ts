@@ -6,7 +6,6 @@ import { AppModule } from './app.module';
 import { ExcludeNullInterceptor } from './utils/excludeNull.interceptor';
 
 async function bootstrap() {
-  console.log(process.env.NODE_ENV);
   const app = await NestFactory.create(AppModule);
   const config = new DocumentBuilder()
     .setTitle('Home Backend')
@@ -22,7 +21,14 @@ async function bootstrap() {
   );
   app.useGlobalInterceptors(new ExcludeNullInterceptor());
   app.use(cookieParser());
-  app.enableCors();
+  const options = {
+    origin: '*',
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    preflightContinue: false,
+    optionsSuccessStatus: 204,
+    credentials: true,
+  };
+  app.enableCors(options);
   await app.listen(process.env.PORT || 8080);
 }
 bootstrap();
