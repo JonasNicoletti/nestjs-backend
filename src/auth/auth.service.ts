@@ -14,7 +14,7 @@ export class AuthService {
     private readonly usersService: UsersService,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
-  ) {}
+  ) { }
 
   public async register(registrationData: CreateUserDto): Promise<User> {
     const hashedPassword = await bcrypt.hash(registrationData.password, 10);
@@ -45,6 +45,7 @@ export class AuthService {
   ): Promise<User> {
     try {
       const user = await this.usersService.findByEmail(email);
+      console.log(user);
       await this.verifyPassword(plainTextPassword, user.password);
       user.password = undefined;
       return user;

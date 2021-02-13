@@ -28,7 +28,7 @@ export class AuthController {
   constructor(
     private readonly authService: AuthService,
     private readonly usersService: UsersService,
-  ) {}
+  ) { }
 
   @Post('register')
   @ApiResponse({
@@ -61,7 +61,7 @@ export class AuthController {
     type: User,
   })
   async logIn(@Req() request: RequestWithUser) {
-    const user = request.body;
+    const { user } = request;
     const accessTokenCookie = this.authService.getCookieWithJwtAccessToken(
       user.id,
     );
