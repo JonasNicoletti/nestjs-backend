@@ -20,6 +20,10 @@ class Feature {
   @ApiProperty()
   public title: string;
 
+  @Column({ nullable: true })
+  @ApiProperty()
+  public description?: string;
+
   @ManyToMany(() => User, (user: User) => user.features)
   @JoinTable()
   public users: User[];

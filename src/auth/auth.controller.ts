@@ -78,15 +78,16 @@ export class AuthController {
   @ApiResponse({
     status: 200,
   })
-  async logOut(@Req() request: RequestWithUser, @Res() response: Response) {
+  @HttpCode(200)
+  async logOut(@Req() request: RequestWithUser) {
     await this.usersService.removeRefreshToken(request.user.id);
-    response.setHeader('Set-Cookie', this.authService.getCookiesForLogOut());
-    return response.sendStatus(200);
+    request.res.setHeader('Set-Cookie', this.authService.getCookiesForLogOut());
   }
 
   @UseGuards(JwtAuthenticationGuard)
   @Get()
   authenticate(@Req() request: RequestWithUser) {
+    console.log('here');
     const user = request.user;
     user.password = undefined;
     return user;

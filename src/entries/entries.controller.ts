@@ -6,17 +6,19 @@ import {
   Delete,
   Req,
   UseGuards,
+  Body,
 } from '@nestjs/common';
 import { EntriesService } from './entries.service';
 import { ApiCookieAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
 import RequestWithUser from '../auth/interfaces/requestWithUser.interface';
 import JwtAuthenticationGuard from '../auth/guards/jwt-authentication.guard';
 import Entry from './entities/entry.entity';
+import { CreateEntryDto } from './dto/create-entry.dto';
 
 @Controller('entries')
 @ApiTags('entries')
 export class EntriesController {
-  constructor(private readonly entriesService: EntriesService) {}
+  constructor(private readonly entriesService: EntriesService) { }
 
   @Post(':featureId')
   @UseGuards(JwtAuthenticationGuard)
@@ -26,8 +28,16 @@ export class EntriesController {
     type: Entry,
   })
   @ApiCookieAuth()
-  create(@Param('featureId') featureId: string, @Req() req: RequestWithUser) {
-    return this.entriesService.create(Number(featureId), req.user);
+  create(
+    @Param('featureId') featureId: string,
+    @Body() createEntryDto: CreateEntryDto,
+    @Req() req: RequestWithUser,
+  ) {
+    return this.entriesService.create(
+      Number(featureId),
+      createEntryDto,
+      req.user,
+    );
   }
 
   @Get()

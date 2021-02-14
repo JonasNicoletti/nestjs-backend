@@ -45,7 +45,6 @@ export class AuthService {
   ): Promise<User> {
     try {
       const user = await this.usersService.findByEmail(email);
-      console.log(user);
       await this.verifyPassword(plainTextPassword, user.password);
       user.password = undefined;
       return user;

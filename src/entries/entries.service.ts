@@ -4,6 +4,7 @@ import { FeaturesService } from '../features/features.service';
 import User from '../users/entities/user.entity';
 import { Repository } from 'typeorm';
 import Entry from './entities/entry.entity';
+import { CreateEntryDto } from './dto/create-entry.dto';
 
 @Injectable()
 export class EntriesService {
@@ -11,11 +12,16 @@ export class EntriesService {
     @InjectRepository(Entry)
     private readonly entryRepository: Repository<Entry>,
     private readonly featureService: FeaturesService,
-  ) {}
+  ) { }
 
-  async create(featureId: number, user: User): Promise<Entry> {
+  async create(
+    featureId: number,
+    createEntryDto: CreateEntryDto,
+    user: User,
+  ): Promise<Entry> {
     const feature = await this.featureService.findOne(featureId);
     const newEntry = this.entryRepository.create({
+      note: createEntryDto.note,
       user: user,
       feature: feature,
     });
