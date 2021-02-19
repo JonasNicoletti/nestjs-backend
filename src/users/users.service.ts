@@ -118,7 +118,6 @@ export class UsersService {
     }
   }
 
-
   private async validateToken(token, dbToken): Promise<boolean> {
     const isTokenMatching = await bcrypt.compare(token, dbToken);
 
