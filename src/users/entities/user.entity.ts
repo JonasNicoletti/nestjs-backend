@@ -42,6 +42,12 @@ class User {
   @Exclude()
   public currentHashedRefreshToken?: string;
 
+  @Column({
+    nullable: true,
+  })
+  @Exclude()
+  public resetPasswordToken?: string;
+
   @ManyToMany(() => Feature, (feature: Feature) => feature.users)
   public features: Feature[];
 

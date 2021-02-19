@@ -8,6 +8,7 @@ Bacis backend gateway to experiment with nestjs.
 - JWT access and refresh token in cookies
 - rest-api
 - postgresql with typeorm
+- reset password
 
 ## Installation
 
@@ -28,6 +29,11 @@ declare `.env` and `docker.env` files with following enviroment variables:
   - `JWT_REFRESH_TOKEN_SECRET`\*
   - `JWT_REFRESH_TOKEN_EXPIRATION_TIME`\*
   - `NODE_ENV`\*
+  - `EMAIL_SERVICE`\*
+  - `EMAIL_USER`\*
+  - `EMAIL_PASSWORD`\*
+  - `RESET_PWD_TOKEN_SECRET`\*
+  - `RESET_PWD_TOKEN_EXPIRATION_TIME`\*
 
 - DOCKER
   - `POSTGRES_USER`

@@ -10,7 +10,7 @@ import * as bcrypt from 'bcrypt';
 export class UsersService {
   constructor(
     @InjectRepository(User) private userRepository: Repository<User>,
-  ) {}
+  ) { }
 
   async create(createUserDto: CreateUserDto): Promise<User> {
     const newUser = this.userRepository.create(createUserDto);
@@ -67,6 +67,33 @@ export class UsersService {
     });
   }
 
+  async setResetPwdToken(token: string, userId: number) {
+    const resetPasswordToken = await bcrypt.hash(token, 10);
+
+    await this.userRepository.update(userId, {
+      resetPasswordToken,
+    });
+  }
+
+  async resetPwd(
+    token: string,
+    newPassword: string,
+    userId: number,
+  ): Promise<User> {
+    const user = await this.getById(userId);
+
+    const isTokenValid = this.validateToken(token, user.resetPasswordToken);
+    if (!isTokenValid) {
+      throw new HttpException('Invalid token', HttpStatus.UNAUTHORIZED);
+    }
+    const hashedPwd = await bcrypt.hash(newPassword, 10);
+    await this.userRepository.update(userId, {
+      password: hashedPwd,
+      resetPasswordToken: null,
+    });
+    return this.userRepository.findOne(userId);
+  }
+
   async getById(id: number) {
     const user = await this.userRepository.findOne({ id });
     if (user) {
@@ -81,7 +108,7 @@ export class UsersService {
   async getUserIfRefreshTokenMatches(refreshToken: string, userId: number) {
     const user = await this.getById(userId);
 
-    const isRefreshTokenMatching = await bcrypt.compare(
+    const isRefreshTokenMatching = await this.validateToken(
       refreshToken,
       user.currentHashedRefreshToken,
     );
@@ -89,6 +116,13 @@ export class UsersService {
     if (isRefreshTokenMatching) {
       return user;
     }
+  }
+
+
+  private async validateToken(token, dbToken): Promise<boolean> {
+    const isTokenMatching = await bcrypt.compare(token, dbToken);
+
+    return isTokenMatching;
   }
 
   async removeRefreshToken(userId: number) {
