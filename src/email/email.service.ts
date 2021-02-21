@@ -20,7 +20,6 @@ export class EmailService {
     sendMail(options: Mail.Options) {
         const from = this.configService.get('EMAIL_USER');
         options.from = from;
-        console.log(options);
         return this.nodemailerTransport.sendMail(options);
     }
 }

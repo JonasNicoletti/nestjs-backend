@@ -9,7 +9,8 @@ import {
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
-import { ApiBody, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { Request } from 'express';
+import { ApiBody, ApiCookieAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
 import User from '../users/entities/user.entity';
 import { AuthService } from './auth.service';
 import RequestWithUser from './interfaces/requestWithUser.interface';
@@ -21,7 +22,8 @@ import RequestWithRegister from './interfaces/requestWithRegister.interface';
 import { CreateUserDto } from 'src/users/dto/create-user.dto';
 import { EmailService } from 'src/email/email.service';
 import { URL } from 'url';
-import { ChangePwdDto } from './interfaces/changePwd.dto';
+import { ChangePwdDto } from './interfaces/changePwd.dto.';
+import { ForgotPasswordRequest } from './interfaces/forgotPwdRequest.dto';
 
 @Controller('auth')
 @ApiTags('auth')
@@ -79,6 +81,7 @@ export class AuthController {
     status: 200,
   })
   @HttpCode(200)
+  @ApiCookieAuth()
   async logOut(@Req() request: RequestWithUser) {
     await this.usersService.removeRefreshToken(request.user.id);
     request.res.setHeader('Set-Cookie', this.authService.getCookiesForLogOut());
@@ -86,6 +89,7 @@ export class AuthController {
 
   @UseGuards(JwtAuthenticationGuard)
   @Get()
+  @ApiCookieAuth()
   authenticate(@Req() request: RequestWithUser) {
     const user = request.user;
     user.password = undefined;
@@ -94,6 +98,7 @@ export class AuthController {
 
   @UseGuards(JwtRefreshGuard)
   @Get('refresh')
+  @ApiCookieAuth()
   refresh(@Req() request: RequestWithUser) {
     const accessTokenCookie = this.authService.getCookieWithJwtAccessToken(
       request.user.id,
@@ -103,18 +108,20 @@ export class AuthController {
     return request.user;
   }
 
-  @UseGuards(JwtAuthenticationGuard)
-  @Post('reset-password-request')
+  @Post('forgot-password')
   @ApiResponse({
     status: 200,
   })
   @HttpCode(200)
-  async resetPasswordRequest(@Req() request: RequestWithUser) {
-    const origin = request.get('origin');
-    const user = request.user;
-    const token = this.authService.generateUserResetPwdToken(user.id);
+  async forgotPassword(
+    @Body() forgotPwdReq: ForgotPasswordRequest,
+    @Req() request: Request,
+  ) {
+    const origin = request.headers.origin;
+    const user = await this.usersService.findByEmail(forgotPwdReq.email);
+    const token = this.authService.generateUserResetPwdToken(+user.id);
     this.usersService.setResetPwdToken(token, +user.id);
-    const url = new URL('/reset/' + token, origin).href;
+    const url = new URL('/reset-password/' + token, origin).href;
     this.emailService.sendMail({
       text: 'Hello, \nCick here to reset your password:\n' + url,
       to: user.email,
@@ -129,6 +136,7 @@ export class AuthController {
     status: 200,
   })
   @HttpCode(200)
+  @ApiCookieAuth()
   async resetPassword(
     @Body() changePwdDto: ChangePwdDto,
     @Req() request: RequestWithUser,
