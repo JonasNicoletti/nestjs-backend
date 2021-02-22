@@ -130,26 +130,19 @@ export class AuthController {
     request.res.sendStatus(200);
   }
 
-  @UseGuards(JwtAuthenticationGuard)
   @Post('reset-password')
   @ApiResponse({
     status: 200,
   })
   @HttpCode(200)
-  @ApiCookieAuth()
   async resetPassword(
     @Body() changePwdDto: ChangePwdDto,
-    @Req() request: RequestWithUser,
+    @Req() request: Request,
   ) {
-    const user = request.user;
     const { newPassword, token } = changePwdDto;
-    const updatedUser = this.usersService.resetPwd(
-      token,
-      newPassword,
-      +user.id,
-    );
+    const updatedUser = await this.usersService.resetPwd(token, newPassword);
     const { accessTokenCookie, cookie } = await this.authService.updateTokens(
-      +user.id,
+      +updatedUser.id,
     );
     request.res.setHeader('Set-Cookie', [accessTokenCookie, cookie]);
     return updatedUser;

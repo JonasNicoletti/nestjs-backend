@@ -68,30 +68,31 @@ export class UsersService {
   }
 
   async setResetPwdToken(token: string, userId: number) {
-    const resetPasswordToken = await bcrypt.hash(token, 10);
-
     await this.userRepository.update(userId, {
-      resetPasswordToken,
+      resetPasswordToken: token,
     });
   }
 
-  async resetPwd(
-    token: string,
-    newPassword: string,
-    userId: number,
-  ): Promise<User> {
-    const user = await this.getById(userId);
-
+  async resetPwd(token: string, newPassword: string): Promise<User> {
+    const user = await this.userRepository.findOne({
+      where: { resetPasswordToken: token },
+    });
+    if (!user) {
+      throw new HttpException(
+        'Token with this id does not exist',
+        HttpStatus.NOT_FOUND,
+      );
+    }
     const isTokenValid = this.validateToken(token, user.resetPasswordToken);
     if (!isTokenValid) {
       throw new HttpException('Invalid token', HttpStatus.UNAUTHORIZED);
     }
     const hashedPwd = await bcrypt.hash(newPassword, 10);
-    await this.userRepository.update(userId, {
+    await this.userRepository.update(user.id, {
       password: hashedPwd,
       resetPasswordToken: null,
     });
-    return this.userRepository.findOne(userId);
+    return this.userRepository.findOne(user.id);
   }
 
   async getById(id: number) {
